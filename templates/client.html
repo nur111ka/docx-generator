@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block title %}DOCX Generator - Клиентская форма{% endblock %}
+{% block header %}Генератор документов{% endblock %}
+
+{% block content %}
+{% if error %}
+<div class="error">{{ error }}</div>
+{% endif %}
+
+{% if api_key and template_name and not error %}
+<div class="info-box">
+    <strong>Шаблон:</strong> {{ template_name }}<br>
+    <strong>Осталось генераций:</strong> {{ remaining }} из {{ limit_count }}<br>
+    <strong>Использовано:</strong> {{ total_used }}
+    <div style="background: #e0e0e0; height: 10px; border-radius: 5px; margin-top: 10px;">
+        <div style="background: #667eea; height: 100%; border-radius: 5px; width: {{ percentage }}%;"></div>
+    </div>
+</div>
+
+<form method="POST">
+    {% for field in fields %}
+    <div class="form-group">
+        <label for="{{ field[0] }}">{{ field[1] }}:</label>
+        <input type="{{ 'text' if field[2] == 'text' else 'date' if field[2] == 'date' else 'number' }}" 
+               id="{{ field[0] }}" 
+               name="{{ field[0] }}" 
+               {% if field[2] == 'date' %}
+               type="date"
+               {% else %}
+               type="text"
+               {% endif %}
+               required>
+    </div>
+    {% endfor %}
+    
+    <button type="submit">Сгенерировать документ</button>
+</form>
+
+{% elif not api_key %}
+<div class="info-box">
+    <h3>Как использовать:</h3>
+    <ol style="margin: 15px 0; padding-left: 20px;">
+        <li>Получите API ключ у администратора</li>
+        <li>Введите ключ в форму ниже</li>
+        <li>Заполните данные и сгенерируйте документ</li>
+    </ol>
+</div>
+
+<form method="GET">
+    <div class="form-group">
+        <label for="key">Введите API ключ:</label>
+        <input type="text" id="key" name="key" required>
+    </div>
+    
+    <button type="submit">Продолжить</button>
+</form>
+{% endif %}
+
+<div style="margin-top: 30px; text-align: center; color: #666;">
+    <p>&copy; 2024 DOCX Generator</p>
+</div>
+{% endblock %}

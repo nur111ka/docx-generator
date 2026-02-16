@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block title %}Управление шаблонами - DOCX Generator{% endblock %}
+{% block header %}Управление шаблонами{% endblock %}
+
+{% block content %}
+<div class="nav">
+    <a href="/admin">Назад в админку</a>
+</div>
+
+<h2>Создание нового шаблона</h2>
+<form method="POST">
+    <input type="hidden" name="action" value="create_template">
+    
+    <div class="form-group">
+        <label for="template_name">Имя шаблона (техническое, английскими буквами):</label>
+        <input type="text" id="template_name" name="template_name" placeholder="contract_template" required>
+    </div>
+    
+    <div class="form-group">
+        <label for="display_name">Отображаемое имя:</label>
+        <input type="text" id="display_name" name="display_name" placeholder="Договор" required>
+    </div>
+    
+    <button type="submit">Создать шаблон</button>
+</form>
+
+<h2>Существующие шаблоны</h2>
+<table>
+    <thead>
+        <tr>
+            <th>Имя</th>
+            <th>Отображаемое имя</th>
+            <th>Действия</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for template in templates %}
+        <tr>
+            <td>{{ template.template_name }}</td>
+            <td>{{ template.display_name }}</td>
+            <td>
+                <a href="/admin/template/{{ template.template_name }}">Настроить</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

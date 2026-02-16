@@ -1,0 +1,140 @@
+{% extends "base.html" %}
+
+{% block title %}Админ-панель - DOCX Generator{% endblock %}
+{% block header %}Админ-панель{% endblock %}
+
+{% block content %}
+<div class="nav">
+    <a href="/admin?tab=templates" class="{{ 'active' if tab == 'templates' else '' }}">Шаблоны</a>
+    <a href="/admin?tab=keys" class="{{ 'active' if tab == 'keys' else '' }}">API ключи</a>
+    <a href="/admin/logout">Выйти</a>
+</div>
+
+{% if message %}
+<div class="success">{{ message|safe }}</div>
+{% endif %}
+
+{% if error %}
+<div class="error">{{ error }}</div>
+{% endif %}
+
+<div class="stats-grid">
+    <div class="stat-card">
+        <h3>{{ stats.total_keys }}</h3>
+        <p>Всего ключей</p>
+    </div>
+    <div class="stat-card">
+        <h3>{{ stats.active_keys }}</h3>
+        <p>Активных ключей</p>
+    </div>
+    <div class="stat-card">
+        <h3>{{ stats.total_usage }}</h3>
+        <p>Всего использований</p>
+    </div>
+    <div class="stat-card">
+        <h3>{{ stats.total_requests }}</h3>
+        <p>Всего запросов</p>
+    </div>
+</div>
+
+{% if tab == 'keys' %}
+<h2>Создание API ключа</h2>
+<form method="POST" style="margin: 20px 0;">
+    <input type="hidden" name="action" value="create_key">
+    
+    <div class="form-group">
+        <label for="key_client_name">Выберите шаблон:</label>
+        <select id="key_client_name" name="key_client_name" required>
+            <option value="">-- Выберите шаблон --</option>
+            {% for template in templates %}
+            <option value="{{ template.template_name }}">{{ template.display_name }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    
+    <div class="form-group">
+        <label for="limit_count">Лимит использований:</label>
+        <input type="number" id="limit_count" name="limit_count" value="10" min="1" required>
+    </div>
+    
+    <button type="submit">Создать ключ</button>
+</form>
+
+<h2>Активные ключи</h2>
+<table>
+    <thead>
+        <tr>
+            <th>API Ключ</th>
+            <th>Шаблон</th>
+            <th>Лимит</th>
+            <th>Использовано</th>
+            <th>Статус</th>
+            <th>Действия</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for key in keys %}
+        <tr>
+            <td><code>{{ key.api_key }}</code></td>
+            <td>{{ key.template_name }}</td>
+            <td>{{ key.limit_count }}</td>
+            <td>{{ key.used_count }}</td>
+            <td>{{ key.status }}</td>
+            <td>
+                {% if key.status == 'active' %}
+                <form method="POST" style="display: inline;">
+                    <input type="hidden" name="action" value="deactivate_key">
+                    <input type="hidden" name="api_key" value="{{ key.api_key }}">
+                    <button type="submit" style="padding: 5px 10px; font-size: 12px;">Деактивировать</button>
+                </form>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% elif tab == 'templates' %}
+<h2>Управление шаблонами</h2>
+<p><a href="/admin/templates/manage">Перейти к управлению шаблонами</a></p>
+
+<h2>Создание нового шаблона</h2>
+<form method="POST" action="/admin/templates/manage" style="margin: 20px 0;">
+    <input type="hidden" name="action" value="create_template">
+    
+    <div class="form-group">
+        <label for="template_name">Имя шаблона (technical name):</label>
+        <input type="text" id="template_name" name="template_name" placeholder="contract_template" required>
+    </div>
+    
+    <div class="form-group">
+        <label for="display_name">Отображаемое имя:</label>
+        <input type="text" id="display_name" name="display_name" placeholder="Договор" required>
+    </div>
+    
+    <button type="submit">Создать шаблон</button>
+</form>
+
+<h2>Существующие шаблоны</h2>
+<table>
+    <thead>
+        <tr>
+            <th>Имя</th>
+            <th>Отображаемое имя</th>
+            <th>Действия</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for template in templates %}
+        <tr>
+            <td>{{ template.template_name }}</td>
+            <td>{{ template.display_name }}</td>
+            <td>
+                <a href="/admin/template/{{ template.template_name }}">Настроить</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endif %}
+{% endblock %}
